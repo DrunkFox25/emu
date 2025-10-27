@@ -1,4 +1,287 @@
 <!DOCTYPE html>
 <html>
+
+<head>
+<title>Ice Pass</title>
+</head>
+<body>
+
+<h1>Created by Peter Aravin</h1>
+Enter video id or url.
+<br>
+<input type="text" id="vidLink" placeholder="Enter video here">
+<button onclick="addvid()">Enter</button>
+
+<div id="player"></div>
+
+
+<div id="verticalMenuContainer" style="max-height: 200px; overflow-y: auto;">
+  <ul id="vidMenu">
+    <!-- Menu items will be added here by JavaScript -->
+  </ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<style>
+
+#verticalMenuContainer {
+  width: 300px;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+#vidMenu {
+  list-style-type: none; /* Remove bullet points */
+  padding: 0;
+  margin: 0;
+}
+
+#vidMenu li {
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+</style>
+
+
+
+
+
+
+<script>
+
+
+const year = 365*34*60*60*1000;
+const currt = new Date();
+//const expt = new Date(d.getTime() + year);
+//const exptstr = "expires="+ expt.toUTCString();
+
+function setCookie(cname, cvalue, exp){
+  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function getCookie(cname) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(';');
+  for(let i = 0; i <ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+
+
+var currVideoUrl;
+
+
+const vidMenu = document.getElementById("vidMenu");
+const vidLink = document.getElementById("vidLink");
+const vidList = new Map;//(JSON.parse(getCookie("vids")));
+/*
+([
+	["https://www.youtube.com/embed/tgbNymZ7vqY", {title: 'test'}]
+]);
+window.addEventListener('beforeunload', function(event) {
+  setCookie("vids", vidList);
+  //event.preventDefault();
+  event.returnValue = '';
+});*/
+
+
+
+
+
+
+var tag = document.createElement('script');
+
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+      
+      
+var player;
+function onYouTubeIframeAPIReady() {
+player = new YT.Player('player', {
+    height: '390',
+    width: '640',
+    videoId: '',
+    frameborder: "0",
+	allow: "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen",
+    playerVars: {
+    	'playsinline': 1
+    },
+    events: {
+    	'onReady': onPlayerReady,
+        'onStateChange': onPlayerStateChange
+    }
+});
+
+for(const [key, value] of vidList) {
+    addMenuItem(vidMenu, key);
+}
+
+}
+
+
+
+function onPlayerReady(event){event.target.playVideo();}
+
+
+
+//const videoStart = new Event('onStart');
+let start = 1;
+function onPlayerStateChange(event){
+	if(event.data == -1) start = 1;
+	if(event.data == 1 && start == 1){
+    	start = 0;
+        
+        if(vidList.has(currVideoUrl) == false){
+        	//alert(currVideoUrl);
+       		vidList.set(currVideoUrl, player.getVideoData());
+        	addMenuItem(vidMenu, currVideoUrl);
+        }
+        
+        //player.dispatchEvent(videoStart);
+    }
+}
+
+/*
+async function waitForLoad() {
+  await new Promise(resolve => {
+    player.addEventListener('onStart', resolve, { once: true });
+  });
+}*/
+
+      
+
+function isUrl(string) {
+	try {
+    	new URL(string);
+    	return true;
+	} catch (err) {
+    	return false;
+	}
+}
+
+function convert(text){
+	text = text.replace("/watch?v=", "/embed/");
+    
+	if(!isUrl(text)){
+    	text = "https://www.youtube.com/embed/"+text;
+	}
+    
+    return text;
+}
+
+
+
+function playvid(Url, t){
+    currVideoUrl = Url;
+    
+	player.loadVideoByUrl(Url, t);
+}
+
+function addMenuItem(menu, url) {
+	const newItem = document.createElement('li');
+	newItem.textContent = vidList.get(url).title;
+	menu.appendChild(newItem);
+    
+    newItem.addEventListener('click', function() {
+        event.preventDefault();
+        playvid(url, 0);
+    });
+}
+
+
+
+function addvid(){
+	var text = vidLink.value;
+    
+    if(text == 'throw') alert('potato');
+    
+    else{
+    	text = convert(text);
+        
+        playvid(text, 0);
+    }
+    
+}
+
+
+
+vidLink.addEventListener('keydown', function(event) {
+    if (event.keyCode === 13) {
+        event.preventDefault();
+
+        addvid();
+        
+        vidLink.value = '';
+    }
+});
+
+
+//https://www.w3schools.com/js/js_cookies.asp
+
+
+
+
+
+
+
+
+</script>
+
+</body>
+</html>
+
+
+
+
+https://www.youtube.com/watch?v=F0qVqiVxpSg
+https://www.youtube.com/watch?v=7b8FFc2G_wY
+https://www.youtube.com/watch?v=f2tt60oKKtI
+https://www.youtube.com/watch?v=RGoQCy2BlMw
+https://www.youtube.com/watch?v=bG8nem9s6Zc
+https://youtu.be/bxX76HMgx98
+https://www.youtube.com/watch?v=6Q7pGwfg0bc
+https://www.youtube.com/watch?v=ux_kwShNHHE
+https://www.youtube.com/watch?v=DXIxOi0eQrNU
+https://www.youtube.com/watch?v=1N22qIy_vHs
+https://www.youtube.com/watch?v=r9_DkfLkkY8
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
 <iframe src="https://run-3.gitlab.io/" width="1200" height="900" allowfullscreen="allowfullscreen"></iframe>
 </html>
